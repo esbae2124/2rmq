@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기출문제 정리장</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 1000px; margin: 0 auto; padding: 20px; }
+        h2 { border-bottom: 2px solid #333; padding-bottom: 8px; margin-top: 30px; }
+        .form-container { background-color: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #dee2e6; margin-bottom: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-weight: bold; margin-bottom: 5px; }
+        .form-group input, .form-group select, .form-group textarea { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        .btn-submit { background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 15px; }
+        .btn-submit:hover { background-color: #0056b3; }
+        .table-responsive { overflow-x: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { background-color: #e9ecef; border-bottom: 2px solid #dee2e6; padding: 12px; text-align: left; }
+        td { padding: 12px; border-bottom: 1px solid #dee2e6; vertical-align: top; }
+        .answer-cell { color: #155724; background-color: #f4fbf7; white-space: pre-line; }
+        .question-cell { white-space: pre-line; }
+        .badge { background-color: #e2e3e5; color: #383d41; padding: 2px 6px; border-radius: 4px; font-size: 12px; margin-right: 4px; display: inline-block; margin-bottom: 2px; }
+        .subject-badge { font-weight: bold; color: #495057; }
+    </style>
+</head>
+<body>
+
+    <h2>📝 기출문제 즉시 추가 및 관리</h2>
+    
+    <div class="form-container">
+        <div class="grid-3">
+            <div class="form-group">
+                <label for="inputYear">연도</label>
+                <input type="text" id="inputYear" placeholder="예: 2026">
+            </div>
+            <div class="form-group">
+                <label for="inputSubject">과목</label>
+                <select id="inputSubject">
+                    <option value="기초심리평가">기초심리평가</option>
+                    <option value="기초심리상담">기초심리상담</option>
+                    <option value="심리치료">심리치료</option>
+                    <option value="자문교육심리재활">자문교육심리재활</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="inputTags">추가 태그 (쉼표로 구분)</label>
+                <input type="text" id="inputTags" placeholder="예: MMPI, 성인, 불안">
+            </div>
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label for="inputQuestion">문제</label>
+            <textarea id="inputQuestion" rows="2" placeholder="문제를 입력하세요"></textarea>
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label for="inputAnswer">답안</label>
+            <textarea id="inputAnswer" rows="3" placeholder="답안을 입력하세요"></textarea>
+        </div>
+        
+        <button class="btn-submit" onclick="addProblem()">+ 목록에 바로 추가</button>
+    </div>
+
+    <h2>📚 문제 목록</h2>
+    
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 8%;">연도</th>
+                    <th style="width: 15%;">과목</th>
+                    <th style="width: 35%;">문제</th>
+                    <th style="width: 30%;">답안</th>
+                    <th style="width: 12%;">태그</th>
+                </tr>
+            </thead>
+            <tbody id="problemTableBody">
+                <tr id="emptyRow">
+                    <td colspan="5" style="text-align: center; color: #6c757d; padding: 20px;">등록된 문제가 없습니다. 위에서 문제를 추가해 보세요!</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        let localData = localStorage.getItem('myProblems');
+        let problems = localData ? JSON.parse(localData) : [];
+
+        document.addEventListener("DOMContentLoaded", function() {
+            renderTable();
+        });
+
+        function addProblem() {
+            const year = document.getElementById('inputYear').value.trim() || '미정';
+            const subject = document.getElementById('inputSubject').value;
+            const question = document.getElementById('inputQuestion').value.trim();
+            const answer = document.getElementById('inputAnswer').value.trim();
+            const tagsInput = document.getElementById('inputTags').value.trim();
+
+            if (!question || !answer) {
+                alert('문제와 답안은 반드시 입력해야 합니다.');
+                return;
+            }
+
+            const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t !== '') : [];
+            const newProblem = { year, subject, question, answer, tags };
+            
+            problems.push(newProblem);
+            localStorage.setItem('myProblems', JSON.stringify(problems));
+
+            document.getElementById('inputYear').value = '';
+            document.getElementById('inputQuestion').value = '';
+            document.getElementById('inputAnswer').value = '';
+            document.getElementById('inputTags').value = '';
+
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('problemTableBody');
+            tbody.innerHTML = '';
+
+            if (problems.length === 0) {
+                tbody.innerHTML = `
+                    <tr id="emptyRow">
+                        <td colspan="5" style="text-align: center; color: #6c757d; padding: 20px;">등록된 문제가 없습니다. 위에서 문제를 추가해 보세요!</td>
+                    </tr>`;
+                return;
+            }
+
+            problems.forEach((p) => {
+                const tr = document.createElement('tr');
+                const tagBadges = p.tags.map(t => `<span class="badge">#${t}</span>`).join('');
+
+                tr.innerHTML = `
+                    <td>${p.year}</td>
+                    <td><span class="subject-badge">${p.subject}</span></td>
+                    <td class="question-cell">${p.question}</td>
+                    <td class="answer-cell">${p.answer}</td>
+                    <td>${tagBadges}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    </script>
+</body>
+</html>
