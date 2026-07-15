@@ -13,10 +13,9 @@
     <link rel="icon" type="image/png" sizes="32x32" href="https://cdn-icons-png.flaticon.com/512/2232/2232688.png">
     <link rel="icon" type="image/png" sizes="16x16" href="https://cdn-icons-png.flaticon.com/512/2232/2232688.png">
 
-    <!-- 🌟 표 자동 변환(Markdown)을 위한 라이브러리 추가 -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-   <style>
+    <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 1100px; margin: 0 auto; padding: 20px; background-color: #fafafa; }
         h2 { border-bottom: 2px solid #333; padding-bottom: 8px; margin-top: 30px; display: flex; justify-content: space-between; align-items: center; }
         
@@ -32,8 +31,7 @@
         .admin-only { display: none; }
         
         .form-container { background-color: white; padding: 20px; border-radius: 8px; border: 1px solid #dee2e6; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
-        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 15px; }
         .form-group { display: flex; flex-direction: column; }
         .form-group label { font-weight: bold; margin-bottom: 5px; font-size: 14px; }
         .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
@@ -50,22 +48,24 @@
         .view-section.active { display: block; }
 
         .table-responsive { overflow-x: auto; background: #fff; border-radius: 8px; border: 1px solid #dee2e6; }
-        
-        /* 🌟 수정된 부분: table-layout: fixed; 를 추가하여 설정된 비율을 강제로 유지합니다 */
-        table { width: 100%; border-collapse: collapse; min-width: 800px; table-layout: fixed; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; table-layout: fixed; }
         th { background-color: #f1f3f5; border-bottom: 2px solid #dee2e6; padding: 12px; text-align: left; font-size: 14px; }
-        
-        /* 🌟 수정된 부분: word-break: keep-all; 을 추가하여 글자가 이상하게 끊기지 않도록 방지 */
         td { padding: 12px; border-bottom: 1px solid #dee2e6; vertical-align: top; font-size: 14px; word-break: keep-all; }
         
         .btn-toggle-table { background: #6c757d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; transition: background 0.2s; }
         .btn-toggle-table.opened { background: #28a745; }
-        
-        /* 🌟 수정된 부분: overflow-x: auto; 를 추가하여 정답 안에 큰 표가 있어도 밖으로 밀어내지 않고 내부 스크롤을 만듭니다 */
         .table-answer-content { color: #155724; background-color: #f4fbf7; padding: 12px; border-radius: 6px; border: 1px solid #c3e6cb; margin-top: 8px; display: none; font-weight: 500; overflow-x: auto; }
 
         .badge { background-color: #e2e3e5; color: #383d41; padding: 2px 6px; border-radius: 4px; font-size: 12px; margin-right: 4px; display: inline-block; margin-bottom: 2px; }
-        .subject-badge { font-weight: bold; color: #495057; background: #e8f0fe; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+        .subject-badge { font-weight: bold; color: #495057; background: #e8f0fe; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+        
+        /* 🌟 출처별 배지 디자인 추가 */
+        .source-badge { font-weight: bold; color: #fff; padding: 3px 6px; border-radius: 4px; font-size: 12px; display: inline-block; }
+        .source-1 { background-color: #6f42c1; } /* 대학원 동기 (보라) */
+        .source-2 { background-color: #0d6efd; } /* 인터넷 기출 (파랑) */
+        .source-3 { background-color: #fd7e14; } /* 시대고시 (주황) */
+        .source-0 { background-color: #adb5bd; } /* 기타/미지정 (회색) */
+
         .action-btns { display: flex; gap: 5px; flex-direction: column; }
         .btn-edit { background-color: #ffc107; color: #212529; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
         .btn-delete { background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
@@ -73,9 +73,7 @@
         .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
         .quiz-card { background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; min-height: 200px; transition: transform 0.2s; }
         .quiz-card:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.08); }
-        .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 13px; color: #666; border-bottom: 1px dashed #eee; padding-bottom: 8px; }
-        
-        /* 🌟 카드형태 답안 박스에도 가로 스크롤 적용 */
+        .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 13px; color: #666; border-bottom: 1px dashed #eee; padding-bottom: 8px; flex-wrap: wrap; gap: 8px; }
         .card-answer-box { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 12px; margin-bottom: 15px; display: none; color: #155724; font-weight: 500; overflow-x: auto; }
         .card-tags { margin-top: auto; padding-top: 10px; }
         .btn-toggle-ans { background: #6c757d; color: white; border: none; width: 100%; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; margin-bottom: 10px; }
@@ -86,7 +84,6 @@
         .btn-random:hover { background-color: #59339d; transform: translateY(-2px); }
         .random-problem-box { max-width: 700px; margin: 30px auto 0; text-align: left; }
 
-        /* 마크다운 표(Table) 스타일 */
         .markdown-body table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
         .markdown-body th { background-color: #e9ecef; border: 1px solid #ced4da; padding: 10px; text-align: center; font-weight: bold; color: #495057; }
         .markdown-body td { border: 1px solid #ced4da; padding: 10px; }
@@ -113,7 +110,7 @@
         <div class="form-container">
             <input type="hidden" id="editIndex" value="-1">
             
-            <div class="grid-3">
+            <div class="grid-4">
                 <div class="form-group">
                     <label for="inputYear">연도</label>
                     <input type="text" id="inputYear" placeholder="예: 2026">
@@ -125,6 +122,15 @@
                         <option value="기초심리상담">기초심리상담</option>
                         <option value="심리치료">심리치료</option>
                         <option value="자문교육심리재활">자문교육심리재활</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="inputSource">출처 📚</label>
+                    <select id="inputSource">
+                        <option value="기타/미지정">기타/미지정</option>
+                        <option value="대학원 동기가준 자료집">대학원 동기가준 자료집</option>
+                        <option value="인터넷에서 산 기출문제집">인터넷에서 산 기출문제집</option>
+                        <option value="시대고시 기출문제집">시대고시 기출문제집</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -152,7 +158,7 @@
 
     <h2>🔍 기출문제 조건 필터링</h2>
     <div class="form-container filter-container">
-        <div class="grid-4">
+        <div class="grid-4" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
             <div class="form-group">
                 <label for="filterSubject">과목 선택</label>
                 <select id="filterSubject" onchange="renderAll()">
@@ -167,6 +173,16 @@
                 <label for="filterYear">연도 선택</label>
                 <select id="filterYear" onchange="renderAll()">
                     <option value="전체">✨ 전체 연도 보기</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="filterSource">출처 선택 📚</label>
+                <select id="filterSource" onchange="renderAll()">
+                    <option value="전체">✨ 전체 출처 보기</option>
+                    <option value="대학원 동기가준 자료집">대학원 동기가준 자료집</option>
+                    <option value="인터넷에서 산 기출문제집">인터넷에서 산 기출문제집</option>
+                    <option value="시대고시 기출문제집">시대고시 기출문제집</option>
+                    <option value="기타/미지정">기타/미지정</option>
                 </select>
             </div>
             <div class="form-group" style="grid-column: span 2;">
@@ -193,11 +209,12 @@
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 8%;">연도</th>
-                        <th style="width: 15%;">과목</th>
-                        <th style="width: 32%;">문제</th>
-                        <th style="width: 35%;">정답 확인</th>
-                        <th style="width: 10%;">태그</th>
+                        <th style="width: 7%;">연도</th>
+                        <th style="width: 12%;">과목</th>
+                        <th style="width: 12%;">출처</th>
+                        <th style="width: 29%;">문제</th>
+                        <th style="width: 24%;">정답 확인</th>
+                        <th style="width: 9%;">태그</th>
                         <th class="admin-only th-action" style="width: 7%; text-align: center;">관리</th>
                     </tr>
                 </thead>
@@ -215,13 +232,12 @@
     <div id="randomViewSection" class="view-section">
         <div class="random-container">
             <button class="btn-random" onclick="drawRandomProblem()">🎲 무작위 문제 하나 뽑기</button>
-            <p style="color: #666; font-size: 14px; margin-top: 10px;">(상단의 과목/검색어 필터가 적용된 문제 중에서만 뽑힙니다)</p>
+            <p style="color: #666; font-size: 14px; margin-top: 10px;">(상단의 과목/출처/검색어 필터가 적용된 문제 중에서만 뽑힙니다)</p>
             <div id="randomProblemBox" class="random-problem-box" style="display: none;"></div>
         </div>
     </div>
 
     <script>
-        // 🌟 마크다운(표) 렌더링 설정 (줄바꿈 허용, 표 기능 활성화)
         marked.setOptions({
             breaks: true,
             gfm: true
@@ -401,11 +417,13 @@
         function getFilteredProblems() {
             const selSubject = document.getElementById('filterSubject').value;
             const selYear = document.getElementById('filterYear').value;
+            const selSource = document.getElementById('filterSource').value;
             const query = document.getElementById('filterSearch').value.toLowerCase().trim();
 
             return problems.filter(p => {
                 if (selSubject !== '전체' && p.subject !== selSubject) return false;
                 if (selYear !== '전체' && p.year !== selYear) return false;
+                if (selSource !== '전체' && (p.source || '기타/미지정') !== selSource) return false;
                 if (query !== '') {
                     const matchQuestion = p.question.toLowerCase().includes(query);
                     const matchAnswer = p.answer.toLowerCase().includes(query);
@@ -420,6 +438,7 @@
             if(!isAdmin) return;
             const year = document.getElementById('inputYear').value.trim() || '미정';
             const subject = document.getElementById('inputSubject').value;
+            const source = document.getElementById('inputSource').value;
             const question = document.getElementById('inputQuestion').value.trim();
             const answer = document.getElementById('inputAnswer').value.trim();
             const tagsInput = document.getElementById('inputTags').value.trim();
@@ -431,7 +450,7 @@
             }
 
             const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t !== '') : [];
-            const problemData = { year, subject, question, answer, tags };
+            const problemData = { year, subject, source, question, answer, tags };
             
             if (editIndex === -1) {
                 problems.push(problemData);
@@ -451,6 +470,7 @@
             const p = problems[index]; 
             document.getElementById('inputYear').value = p.year === '미정' ? '' : p.year;
             document.getElementById('inputSubject').value = p.subject;
+            document.getElementById('inputSource').value = p.source || '기타/미지정';
             document.getElementById('inputQuestion').value = p.question;
             document.getElementById('inputAnswer').value = p.answer;
             document.getElementById('inputTags').value = p.tags.join(', ');
@@ -491,6 +511,7 @@
             document.getElementById('inputQuestion').value = '';
             document.getElementById('inputAnswer').value = '';
             document.getElementById('inputTags').value = '';
+            document.getElementById('inputSource').value = '기타/미지정';
         }
 
         function renderAll() {
@@ -500,21 +521,32 @@
             document.getElementById('randomProblemBox').style.display = 'none';
         }
 
+        function getSourceBadgeHtml(source) {
+            let badgeClass = 'source-badge';
+            if(source === '대학원 동기가준 자료집') badgeClass += ' source-1';
+            else if(source === '인터넷에서 산 기출문제집') badgeClass += ' source-2';
+            else if(source === '시대고시 기출문제집') badgeClass += ' source-3';
+            else badgeClass += ' source-0';
+            
+            return `<span class="${badgeClass}">${source || '기타/미지정'}</span>`;
+        }
+
         // ==========================================
-        // 🌟 1. 표 형태 렌더링 (마크다운 적용)
+        // 표 형태 렌더링
         // ==========================================
         function renderTable(filteredData) {
             const tbody = document.getElementById('problemTableBody');
             tbody.innerHTML = '';
 
             if (filteredData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${isAdmin ? 6 : 5}" style="text-align: center; color: #6c757d; padding: 30px;">조건에 맞는 검색 결과가 없습니다.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${isAdmin ? 7 : 6}" style="text-align: center; color: #6c757d; padding: 30px;">조건에 맞는 검색 결과가 없습니다.</td></tr>`;
                 return;
             }
 
             filteredData.forEach((p) => {
                 const originalIndex = problems.indexOf(p); 
                 const tagBadges = p.tags.map(t => `<span class="badge">#${t}</span>`).join('');
+                const sourceBadge = getSourceBadgeHtml(p.source);
                 
                 const actionCell = isAdmin ? `
                     <td style="text-align: center;">
@@ -532,6 +564,7 @@
                 tr.innerHTML = `
                     <td>${p.year}</td>
                     <td><span class="subject-badge">${p.subject}</span></td>
+                    <td>${sourceBadge}</td>
                     <td class="markdown-body" style="font-weight: 500;">${marked.parse(p.question)}</td>
                     <td>
                         <button class="${btnClass} table-ans-btn" id="tableBtn_${originalIndex}" onclick="toggleTableAnswer(${originalIndex})">${btnText}</button>
@@ -586,7 +619,7 @@
         }
 
         // ==========================================
-        // 🌟 2. 카드 형태 렌더링 (마크다운 적용)
+        // 카드 형태 렌더링
         // ==========================================
         function renderCards(filteredData) {
             const grid = document.getElementById('problemCardGrid');
@@ -602,12 +635,14 @@
                 const card = document.createElement('div');
                 card.className = 'quiz-card';
                 const tagBadges = p.tags.map(t => `<span class="badge">#${t}</span>`).join('');
+                const sourceBadge = getSourceBadgeHtml(p.source);
 
                 card.innerHTML = `
                     <div>
                         <div class="card-meta">
                             <span class="subject-badge">${p.subject}</span>
                             <span><strong>${p.year}년</strong></span>
+                            ${sourceBadge}
                         </div>
                         <div class="card-question markdown-body">${marked.parse(p.question)}</div>
                         <div class="card-answer-box markdown-body" id="cardAns_${originalIndex}">${marked.parse(p.answer)}</div>
@@ -637,7 +672,7 @@
         }
 
         // ==========================================
-        // 🌟 3. 랜덤 퀴즈 형태 렌더링 (마크다운 적용)
+        // 랜덤 퀴즈 형태 렌더링
         // ==========================================
         function drawRandomProblem() {
             const filteredData = getFilteredProblems();
@@ -651,6 +686,7 @@
             
             const box = document.getElementById('randomProblemBox');
             const tagBadges = p.tags.map(t => `<span class="badge">#${t}</span>`).join('');
+            const sourceBadge = getSourceBadgeHtml(p.source);
             
             box.innerHTML = `
                 <div class="quiz-card" style="min-height: auto; font-size: 16px; border: 2px solid #6f42c1;">
@@ -658,6 +694,7 @@
                         <div class="card-meta">
                             <span class="subject-badge">${p.subject}</span>
                             <span><strong>${p.year !== '미정' ? p.year + '년' : '연도 미정'}</strong></span>
+                            ${sourceBadge}
                         </div>
                         <div class="card-question markdown-body" style="font-size: 18px;">${marked.parse(p.question)}</div>
                         <div class="card-answer-box markdown-body" id="randomAnsBox" style="display: none; font-size: 16px;">${marked.parse(p.answer)}</div>
