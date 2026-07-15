@@ -16,7 +16,7 @@
     <!-- 🌟 표 자동 변환(Markdown)을 위한 라이브러리 추가 -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-    <style>
+   <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 1100px; margin: 0 auto; padding: 20px; background-color: #fafafa; }
         h2 { border-bottom: 2px solid #333; padding-bottom: 8px; margin-top: 30px; display: flex; justify-content: space-between; align-items: center; }
         
@@ -50,13 +50,19 @@
         .view-section.active { display: block; }
 
         .table-responsive { overflow-x: auto; background: #fff; border-radius: 8px; border: 1px solid #dee2e6; }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        
+        /* 🌟 수정된 부분: table-layout: fixed; 를 추가하여 설정된 비율을 강제로 유지합니다 */
+        table { width: 100%; border-collapse: collapse; min-width: 800px; table-layout: fixed; }
         th { background-color: #f1f3f5; border-bottom: 2px solid #dee2e6; padding: 12px; text-align: left; font-size: 14px; }
-        td { padding: 12px; border-bottom: 1px solid #dee2e6; vertical-align: top; font-size: 14px; }
+        
+        /* 🌟 수정된 부분: word-break: keep-all; 을 추가하여 글자가 이상하게 끊기지 않도록 방지 */
+        td { padding: 12px; border-bottom: 1px solid #dee2e6; vertical-align: top; font-size: 14px; word-break: keep-all; }
         
         .btn-toggle-table { background: #6c757d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; transition: background 0.2s; }
         .btn-toggle-table.opened { background: #28a745; }
-        .table-answer-content { color: #155724; background-color: #f4fbf7; padding: 12px; border-radius: 6px; border: 1px solid #c3e6cb; margin-top: 8px; display: none; font-weight: 500;}
+        
+        /* 🌟 수정된 부분: overflow-x: auto; 를 추가하여 정답 안에 큰 표가 있어도 밖으로 밀어내지 않고 내부 스크롤을 만듭니다 */
+        .table-answer-content { color: #155724; background-color: #f4fbf7; padding: 12px; border-radius: 6px; border: 1px solid #c3e6cb; margin-top: 8px; display: none; font-weight: 500; overflow-x: auto; }
 
         .badge { background-color: #e2e3e5; color: #383d41; padding: 2px 6px; border-radius: 4px; font-size: 12px; margin-right: 4px; display: inline-block; margin-bottom: 2px; }
         .subject-badge { font-weight: bold; color: #495057; background: #e8f0fe; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
@@ -68,7 +74,9 @@
         .quiz-card { background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; min-height: 200px; transition: transform 0.2s; }
         .quiz-card:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.08); }
         .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 13px; color: #666; border-bottom: 1px dashed #eee; padding-bottom: 8px; }
-        .card-answer-box { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 12px; margin-bottom: 15px; display: none; color: #155724; font-weight: 500; }
+        
+        /* 🌟 카드형태 답안 박스에도 가로 스크롤 적용 */
+        .card-answer-box { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 12px; margin-bottom: 15px; display: none; color: #155724; font-weight: 500; overflow-x: auto; }
         .card-tags { margin-top: auto; padding-top: 10px; }
         .btn-toggle-ans { background: #6c757d; color: white; border: none; width: 100%; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; margin-bottom: 10px; }
         .btn-toggle-ans.opened { background: #28a745; }
@@ -78,7 +86,7 @@
         .btn-random:hover { background-color: #59339d; transform: translateY(-2px); }
         .random-problem-box { max-width: 700px; margin: 30px auto 0; text-align: left; }
 
-        /* 🌟 변환된 표(Table)를 예쁘게 보여주는 CSS 스타일 */
+        /* 마크다운 표(Table) 스타일 */
         .markdown-body table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
         .markdown-body th { background-color: #e9ecef; border: 1px solid #ced4da; padding: 10px; text-align: center; font-weight: bold; color: #495057; }
         .markdown-body td { border: 1px solid #ced4da; padding: 10px; }
