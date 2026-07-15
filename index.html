@@ -59,12 +59,12 @@
         .badge { background-color: #e2e3e5; color: #383d41; padding: 2px 6px; border-radius: 4px; font-size: 12px; margin-right: 4px; display: inline-block; margin-bottom: 2px; }
         .subject-badge { font-weight: bold; color: #495057; background: #e8f0fe; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
         
-        /* 🌟 출처별 배지 디자인 추가 */
+        /* 🌟 수정된 출처 배지 디자인 */
         .source-badge { font-weight: bold; color: #fff; padding: 3px 6px; border-radius: 4px; font-size: 12px; display: inline-block; }
-        .source-1 { background-color: #6f42c1; } /* 대학원 동기 (보라) */
-        .source-2 { background-color: #0d6efd; } /* 인터넷 기출 (파랑) */
-        .source-3 { background-color: #fd7e14; } /* 시대고시 (주황) */
-        .source-0 { background-color: #adb5bd; } /* 기타/미지정 (회색) */
+        .source-미화 { background-color: #e83e8c; } /* 핑크 */
+        .source-니케 { background-color: #20c997; } /* 민트 */
+        .source-시대고시 { background-color: #fd7e14; } /* 주황 */
+        .source-0 { background-color: #6c757d; } /* 직접 추가한 출처나 미지정(회색) */
 
         .action-btns { display: flex; gap: 5px; flex-direction: column; }
         .btn-edit { background-color: #ffc107; color: #212529; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
@@ -126,12 +126,16 @@
                 </div>
                 <div class="form-group">
                     <label for="inputSource">출처 📚</label>
-                    <select id="inputSource">
-                        <option value="기타/미지정">기타/미지정</option>
-                        <option value="대학원 동기가준 자료집">대학원 동기가준 자료집</option>
-                        <option value="인터넷에서 산 기출문제집">인터넷에서 산 기출문제집</option>
-                        <option value="시대고시 기출문제집">시대고시 기출문제집</option>
-                    </select>
+                    <div style="display: flex; gap: 5px;">
+                        <select id="inputSource" onchange="toggleCustomSource(this.value)" style="flex: 1;">
+                            <option value="미화">미화</option>
+                            <option value="니케">니케</option>
+                            <option value="시대고시">시대고시</option>
+                            <option value="기타/미지정">기타/미지정</option>
+                            <option value="추가 +">직접 입력 (추가 +)</option>
+                        </select>
+                        <input type="text" id="inputCustomSource" placeholder="새 출처 입력" style="display: none; flex: 1;">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="inputTags">추가 태그 (쉼표로 구분)</label>
@@ -179,10 +183,7 @@
                 <label for="filterSource">출처 선택 📚</label>
                 <select id="filterSource" onchange="renderAll()">
                     <option value="전체">✨ 전체 출처 보기</option>
-                    <option value="대학원 동기가준 자료집">대학원 동기가준 자료집</option>
-                    <option value="인터넷에서 산 기출문제집">인터넷에서 산 기출문제집</option>
-                    <option value="시대고시 기출문제집">시대고시 기출문제집</option>
-                    <option value="기타/미지정">기타/미지정</option>
+                    <!-- 자바스크립트를 통해 입력된 출처들이 이곳에 자동 생성됩니다 -->
                 </select>
             </div>
             <div class="form-group" style="grid-column: span 2;">
@@ -257,6 +258,18 @@
             updateAllAnswersButtonVisibility();
         });
 
+        // 맞춤형 출처 토글 함수
+        function toggleCustomSource(val) {
+            const customInput = document.getElementById('inputCustomSource');
+            if (val === '추가 +') {
+                customInput.style.display = 'block';
+                customInput.focus();
+            } else {
+                customInput.style.display = 'none';
+                customInput.value = '';
+            }
+        }
+
         function requestAdminMode() {
             const pw = prompt("관리자 비밀번호를 입력해 주세요:");
             if (pw === ADMIN_PASSWORD) {
@@ -305,7 +318,7 @@
                 .then(res => res.json())
                 .then(data => {
                     problems = Array.isArray(data) ? data : [];
-                    updateYearFilterOptions(); 
+                    updateDynamicFilters(); 
                     renderAll();
                     hideStatus();
                 })
@@ -315,7 +328,9 @@
                 });
         }
 
-        function updateYearFilterOptions() {
+        // 연도 및 출처 필터를 동적으로 업데이트 하는 함수
+        function updateDynamicFilters() {
+            // 1. 연도 업데이트
             const filterYearSelect = document.getElementById('filterYear');
             filterYearSelect.innerHTML = '<option value="전체">✨ 전체 연도 보기</option>';
             
@@ -334,6 +349,44 @@
                 opt.value = '미정';
                 opt.innerText = '연도 미정';
                 filterYearSelect.appendChild(opt);
+            }
+
+            // 2. 출처 업데이트
+            const filterSourceSelect = document.getElementById('filterSource');
+            const currentSourceFilter = filterSourceSelect.value;
+            filterSourceSelect.innerHTML = '<option value="전체">✨ 전체 출처 보기</option>';
+            
+            const standardSources = ['미화', '니케', '시대고시'];
+            const allSources = [...new Set(problems.map(p => p.source || '기타/미지정'))];
+            
+            // 기본 출처 먼저 추가
+            standardSources.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.innerText = s;
+                filterSourceSelect.appendChild(opt);
+            });
+            
+            // 사용자가 추가한 커스텀 출처들 추가
+            const otherSources = allSources.filter(s => !standardSources.includes(s) && s !== '기타/미지정');
+            otherSources.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.innerText = s;
+                filterSourceSelect.appendChild(opt);
+            });
+
+            // 기타/미지정 추가
+            if (allSources.includes('기타/미지정') || otherSources.length === 0) {
+                 const opt = document.createElement('option');
+                 opt.value = '기타/미지정';
+                 opt.innerText = '기타/미지정';
+                 filterSourceSelect.appendChild(opt);
+            }
+            
+            // 기존 선택값이 유지되도록 복구
+            if(filterSourceSelect.querySelector(`option[value="${currentSourceFilter}"]`)) {
+                filterSourceSelect.value = currentSourceFilter;
             }
         }
 
@@ -438,7 +491,13 @@
             if(!isAdmin) return;
             const year = document.getElementById('inputYear').value.trim() || '미정';
             const subject = document.getElementById('inputSubject').value;
-            const source = document.getElementById('inputSource').value;
+            
+            // 출처 처리 ('추가 +' 선택 시 직접 입력한 값 사용)
+            let source = document.getElementById('inputSource').value;
+            if (source === '추가 +') {
+                source = document.getElementById('inputCustomSource').value.trim() || '기타/미지정';
+            }
+            
             const question = document.getElementById('inputQuestion').value.trim();
             const answer = document.getElementById('inputAnswer').value.trim();
             const tagsInput = document.getElementById('inputTags').value.trim();
@@ -460,7 +519,7 @@
             }
             
             clearForm();
-            updateYearFilterOptions(); 
+            updateDynamicFilters(); 
             renderAll();
             saveToGoogleSheet();
         }
@@ -470,7 +529,23 @@
             const p = problems[index]; 
             document.getElementById('inputYear').value = p.year === '미정' ? '' : p.year;
             document.getElementById('inputSubject').value = p.subject;
-            document.getElementById('inputSource').value = p.source || '기타/미지정';
+            
+            // 출처 처리
+            const standardSources = ['미화', '니케', '시대고시', '기타/미지정'];
+            const inputSourceEl = document.getElementById('inputSource');
+            const customSourceEl = document.getElementById('inputCustomSource');
+            let pSource = p.source || '기타/미지정';
+            
+            if (standardSources.includes(pSource)) {
+                inputSourceEl.value = pSource;
+                customSourceEl.style.display = 'none';
+                customSourceEl.value = '';
+            } else {
+                inputSourceEl.value = '추가 +';
+                customSourceEl.style.display = 'block';
+                customSourceEl.value = pSource;
+            }
+
             document.getElementById('inputQuestion').value = p.question;
             document.getElementById('inputAnswer').value = p.answer;
             document.getElementById('inputTags').value = p.tags.join(', ');
@@ -500,7 +575,7 @@
                 if(document.getElementById('editIndex').value == index) {
                     cancelEdit();
                 }
-                updateYearFilterOptions();
+                updateDynamicFilters();
                 renderAll();
                 saveToGoogleSheet();
             }
@@ -511,7 +586,12 @@
             document.getElementById('inputQuestion').value = '';
             document.getElementById('inputAnswer').value = '';
             document.getElementById('inputTags').value = '';
-            document.getElementById('inputSource').value = '기타/미지정';
+            
+            const inputSourceEl = document.getElementById('inputSource');
+            const customSourceEl = document.getElementById('inputCustomSource');
+            inputSourceEl.value = '미화';
+            customSourceEl.style.display = 'none';
+            customSourceEl.value = '';
         }
 
         function renderAll() {
@@ -523,12 +603,13 @@
 
         function getSourceBadgeHtml(source) {
             let badgeClass = 'source-badge';
-            if(source === '대학원 동기가준 자료집') badgeClass += ' source-1';
-            else if(source === '인터넷에서 산 기출문제집') badgeClass += ' source-2';
-            else if(source === '시대고시 기출문제집') badgeClass += ' source-3';
+            const s = source || '기타/미지정';
+            if(s === '미화') badgeClass += ' source-미화';
+            else if(s === '니케') badgeClass += ' source-니케';
+            else if(s === '시대고시') badgeClass += ' source-시대고시';
             else badgeClass += ' source-0';
             
-            return `<span class="${badgeClass}">${source || '기타/미지정'}</span>`;
+            return `<span class="${badgeClass}">${s}</span>`;
         }
 
         // ==========================================
