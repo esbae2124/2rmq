@@ -41,7 +41,7 @@
         
         .filter-container { background-color: #e9ecef; border: 1px solid #ced4da; }
         
-        .tab-menu { display: flex; gap: 10px; margin-bottom: 0; }
+        .tab-menu { display: flex; gap: 10px; margin-bottom: 0; flex-wrap: wrap; }
         .tab-btn { padding: 10px 20px; border: none; background: #e9ecef; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 15px; transition: 0.2s; }
         .tab-btn.active { background-color: #333; color: white; }
         .view-section { display: none; margin-top: 15px; }
@@ -53,7 +53,6 @@
         td { padding: 12px; border-bottom: 1px solid #dee2e6; vertical-align: top; font-size: 14px; }
         .question-cell { white-space: pre-line; font-weight: 500; }
         
-        /* 표 형태 정답 토글 디자인 */
         .btn-toggle-table { background: #6c757d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; transition: background 0.2s; }
         .btn-toggle-table.opened { background: #28a745; }
         .table-answer-content { color: #155724; background-color: #f4fbf7; padding: 12px; border-radius: 6px; border: 1px solid #c3e6cb; margin-top: 8px; white-space: pre-line; display: none; font-weight: 500;}
@@ -73,6 +72,12 @@
         .card-tags { margin-top: auto; padding-top: 10px; }
         .btn-toggle-ans { background: #6c757d; color: white; border: none; width: 100%; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; margin-bottom: 10px; }
         .btn-toggle-ans.opened { background: #28a745; }
+
+        /* 랜덤 퀴즈 영역 전용 스타일 */
+        .random-container { text-align: center; padding: 30px 10px; background: white; border: 1px solid #dee2e6; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .btn-random { background-color: #6f42c1; color: white; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 18px; transition: 0.2s; box-shadow: 0 4px 6px rgba(111, 66, 193, 0.3); }
+        .btn-random:hover { background-color: #59339d; transform: translateY(-2px); }
+        .random-problem-box { max-width: 700px; margin: 30px auto 0; text-align: left; }
     </style>
 </head>
 <body>
@@ -162,13 +167,14 @@
         <div class="tab-menu">
             <button class="tab-btn active" onclick="switchView('table', this)">📋 표로 보기 (추천)</button>
             <button class="tab-btn" onclick="switchView('card', this)">🗂️ 카드 퀴즈로 보기</button>
+            <button class="tab-btn" onclick="switchView('random', this)" style="color: #6f42c1; border: 1px solid #6f42c1;">🎲 랜덤 퀴즈 뽑기</button>
         </div>
         <div>
             <button id="btnToggleAllTableAnswers" onclick="toggleAllTableAnswers()" class="btn-submit" style="background-color: #17a2b8; padding: 8px 15px; font-size: 14px; display: none;">👁️ 표 전체 정답 보기</button>
         </div>
     </div>
 
-    <!-- 표 형태 뷰 -->
+    <!-- 1. 표 형태 뷰 -->
     <div id="tableViewSection" class="view-section active">
         <div class="table-responsive">
             <table>
@@ -187,9 +193,22 @@
         </div>
     </div>
 
-    <!-- 카드 형태 뷰 -->
+    <!-- 2. 카드 형태 뷰 -->
     <div id="cardViewSection" class="view-section">
         <div class="card-grid" id="problemCardGrid"></div>
+    </div>
+
+    <!-- 3. 랜덤 퀴즈 뷰 (새로 추가) -->
+    <div id="randomViewSection" class="view-section">
+        <div class="random-container">
+            <button class="btn-random" onclick="drawRandomProblem()">🎲 무작위 문제 하나 뽑기</button>
+            <p style="color: #666; font-size: 14px; margin-top: 10px;">(상단의 과목/검색어 필터가 적용된 문제 중에서만 뽑힙니다)</p>
+            
+            <!-- 뽑힌 문제가 표시될 공간 -->
+            <div id="randomProblemBox" class="random-problem-box" style="display: none;">
+                <!-- 내용이 JS를 통해 여기에 주입됩니다 -->
+            </div>
+        </div>
     </div>
 
     <script>
@@ -200,7 +219,7 @@
         let isAdmin = false; 
         let problems = [];
         let currentView = 'table'; 
-        let isAllTableAnswersVisible = false; // 표 전체 정답 보기 상태
+        let isAllTableAnswersVisible = false;
 
         document.addEventListener("DOMContentLoaded", function() {
             loadFromGoogleSheet();
@@ -329,15 +348,30 @@
 
         function switchView(viewMode, element) {
             currentView = viewMode;
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // 모든 탭 스타일 초기화
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.innerText.includes('랜덤')) {
+                    btn.style.backgroundColor = '#e9ecef';
+                    btn.style.color = '#333';
+                }
+            });
             document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
             
+            // 선택된 탭 활성화
             element.classList.add('active');
+            
             if(viewMode === 'table') {
                 document.getElementById('tableViewSection').classList.add('active');
-            } else {
+            } else if(viewMode === 'card') {
                 document.getElementById('cardViewSection').classList.add('active');
+            } else if(viewMode === 'random') {
+                document.getElementById('randomViewSection').classList.add('active');
+                element.style.backgroundColor = '#6f42c1'; // 보라색 테마 유지
+                element.style.color = 'white';
             }
+            
             updateAllAnswersButtonVisibility();
             renderAll();
         }
@@ -450,10 +484,13 @@
             const filtered = getFilteredProblems();
             renderTable(filtered);
             renderCards(filtered);
+            
+            // 필터가 바뀌면 띄워져 있던 랜덤 문제 창은 숨김
+            document.getElementById('randomProblemBox').style.display = 'none';
         }
 
         // ==========================================
-        // 새롭게 변경된 표 렌더링 및 토글 기능
+        // 1. 표 형태
         // ==========================================
         function renderTable(filteredData) {
             const tbody = document.getElementById('problemTableBody');
@@ -476,7 +513,6 @@
                         </div>
                     </td>` : '';
 
-                // 현재 '전체 정답 보기' 상태에 맞춰 개별 버튼/박스의 초기 스타일 결정
                 const displayStyle = isAllTableAnswersVisible ? 'block' : 'none';
                 const btnText = isAllTableAnswersVisible ? '정답 숨기기' : '정답 보기';
                 const btnClass = isAllTableAnswersVisible ? 'btn-toggle-table opened' : 'btn-toggle-table';
@@ -521,7 +557,7 @@
             
             if (isAllTableAnswersVisible) {
                 btnAll.innerText = '👁️ 표 전체 정답 숨기기';
-                btnAll.style.backgroundColor = '#6c757d'; // 닫기 느낌 색상으로 변경
+                btnAll.style.backgroundColor = '#6c757d'; 
                 contents.forEach(el => el.style.display = 'block');
                 btns.forEach(btn => {
                     btn.innerText = '정답 숨기기';
@@ -539,7 +575,7 @@
         }
 
         // ==========================================
-        // 기존 카드 형태 렌더링 및 토글 기능
+        // 2. 카드 형태
         // ==========================================
         function renderCards(filteredData) {
             const grid = document.getElementById('problemCardGrid');
@@ -577,6 +613,57 @@
         function toggleCardAnswer(originalIndex) {
             const ansBox = document.getElementById(`cardAns_${originalIndex}`);
             const btn = document.getElementById(`cardBtn_${originalIndex}`);
+            
+            if (ansBox.style.display === 'none' || ansBox.style.display === '') {
+                ansBox.style.display = 'block';
+                btn.innerText = '정답 숨기기';
+                btn.classList.add('opened');
+            } else {
+                ansBox.style.display = 'none';
+                btn.innerText = '정답 보기';
+                btn.classList.remove('opened');
+            }
+        }
+
+        // ==========================================
+        // 3. 랜덤 퀴즈 형태 (새로 추가)
+        // ==========================================
+        function drawRandomProblem() {
+            const filteredData = getFilteredProblems();
+            if (filteredData.length === 0) {
+                alert("조건에 맞는 문제가 없습니다. 상단의 필터를 확인해 주세요.");
+                return;
+            }
+            
+            // 필터링된 데이터 중 무작위로 하나 추출
+            const randomIndex = Math.floor(Math.random() * filteredData.length);
+            const p = filteredData[randomIndex];
+            
+            const box = document.getElementById('randomProblemBox');
+            const tagBadges = p.tags.map(t => `<span class="badge">#${t}</span>`).join('');
+            
+            box.innerHTML = `
+                <div class="quiz-card" style="min-height: auto; font-size: 16px; border: 2px solid #6f42c1;">
+                    <div>
+                        <div class="card-meta">
+                            <span class="subject-badge">${p.subject}</span>
+                            <span><strong>${p.year !== '미정' ? p.year + '년' : '연도 미정'}</strong></span>
+                        </div>
+                        <div class="card-question" style="font-size: 18px;">${p.question}</div>
+                        <div class="card-answer-box" id="randomAnsBox" style="display: none; font-size: 16px;">${p.answer}</div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <button class="btn-toggle-ans" id="randomAnsBtn" onclick="toggleRandomAnswer()" style="font-size: 15px; padding: 12px;">정답 보기</button>
+                        <div class="card-tags">${tagBadges}</div>
+                    </div>
+                </div>
+            `;
+            box.style.display = 'block';
+        }
+
+        function toggleRandomAnswer() {
+            const ansBox = document.getElementById('randomAnsBox');
+            const btn = document.getElementById('randomAnsBtn');
             
             if (ansBox.style.display === 'none' || ansBox.style.display === '') {
                 ansBox.style.display = 'block';
