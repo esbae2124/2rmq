@@ -8,11 +8,13 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="기출문제 스마트 정리장">
     <meta property="og:description" content="스마트하게 정리하고 퀴즈로 풀어보는 나만의 기출문제 정리장">
-    <meta property="og:image" content="https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?auto=format&fit=crop&w=1200&h=630&q=80">
 
     <link rel="apple-touch-icon" sizes="180x180" href="https://cdn-icons-png.flaticon.com/512/2232/2232688.png">
     <link rel="icon" type="image/png" sizes="32x32" href="https://cdn-icons-png.flaticon.com/512/2232/2232688.png">
     <link rel="icon" type="image/png" sizes="16x16" href="https://cdn-icons-png.flaticon.com/512/2232/2232688.png">
+
+    <!-- 🌟 표 자동 변환(Markdown)을 위한 라이브러리 추가 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 1100px; margin: 0 auto; padding: 20px; background-color: #fafafa; }
@@ -51,11 +53,10 @@
         table { width: 100%; border-collapse: collapse; min-width: 800px; }
         th { background-color: #f1f3f5; border-bottom: 2px solid #dee2e6; padding: 12px; text-align: left; font-size: 14px; }
         td { padding: 12px; border-bottom: 1px solid #dee2e6; vertical-align: top; font-size: 14px; }
-        .question-cell { white-space: pre-line; font-weight: 500; }
         
         .btn-toggle-table { background: #6c757d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; transition: background 0.2s; }
         .btn-toggle-table.opened { background: #28a745; }
-        .table-answer-content { color: #155724; background-color: #f4fbf7; padding: 12px; border-radius: 6px; border: 1px solid #c3e6cb; margin-top: 8px; white-space: pre-line; display: none; font-weight: 500;}
+        .table-answer-content { color: #155724; background-color: #f4fbf7; padding: 12px; border-radius: 6px; border: 1px solid #c3e6cb; margin-top: 8px; display: none; font-weight: 500;}
 
         .badge { background-color: #e2e3e5; color: #383d41; padding: 2px 6px; border-radius: 4px; font-size: 12px; margin-right: 4px; display: inline-block; margin-bottom: 2px; }
         .subject-badge { font-weight: bold; color: #495057; background: #e8f0fe; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
@@ -67,17 +68,22 @@
         .quiz-card { background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; min-height: 200px; transition: transform 0.2s; }
         .quiz-card:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.08); }
         .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 13px; color: #666; border-bottom: 1px dashed #eee; padding-bottom: 8px; }
-        .card-question { font-weight: bold; font-size: 16px; margin-bottom: 15px; white-space: pre-line; color: #222; }
-        .card-answer-box { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 12px; margin-bottom: 15px; display: none; white-space: pre-line; color: #155724; font-weight: 500; }
+        .card-answer-box { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 12px; margin-bottom: 15px; display: none; color: #155724; font-weight: 500; }
         .card-tags { margin-top: auto; padding-top: 10px; }
         .btn-toggle-ans { background: #6c757d; color: white; border: none; width: 100%; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; margin-bottom: 10px; }
         .btn-toggle-ans.opened { background: #28a745; }
 
-        /* 랜덤 퀴즈 영역 전용 스타일 */
         .random-container { text-align: center; padding: 30px 10px; background: white; border: 1px solid #dee2e6; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
         .btn-random { background-color: #6f42c1; color: white; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 18px; transition: 0.2s; box-shadow: 0 4px 6px rgba(111, 66, 193, 0.3); }
         .btn-random:hover { background-color: #59339d; transform: translateY(-2px); }
         .random-problem-box { max-width: 700px; margin: 30px auto 0; text-align: left; }
+
+        /* 🌟 변환된 표(Table)를 예쁘게 보여주는 CSS 스타일 */
+        .markdown-body table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
+        .markdown-body th { background-color: #e9ecef; border: 1px solid #ced4da; padding: 10px; text-align: center; font-weight: bold; color: #495057; }
+        .markdown-body td { border: 1px solid #ced4da; padding: 10px; }
+        .markdown-body p { margin-top: 0; margin-bottom: 8px; }
+        .markdown-body ul, .markdown-body ol { margin-top: 0; margin-bottom: 8px; padding-left: 20px; }
     </style>
 </head>
 <body>
@@ -120,13 +126,13 @@
             </div>
             
             <div class="form-group" style="margin-bottom: 15px;">
-                <label for="inputQuestion">문제</label>
+                <label for="inputQuestion">문제 (표를 넣으려면 | 항목 | 내용 | 처럼 입력)</label>
                 <textarea id="inputQuestion" rows="2" placeholder="문제를 입력하세요"></textarea>
             </div>
             
             <div class="form-group" style="margin-bottom: 15px;">
-                <label for="inputAnswer">답안</label>
-                <textarea id="inputAnswer" rows="3" placeholder="답안을 입력하세요"></textarea>
+                <label for="inputAnswer">답안 (표를 넣으려면 | 항목 | 내용 | 처럼 입력)</label>
+                <textarea id="inputAnswer" rows="4" placeholder="답안을 입력하세요"></textarea>
             </div>
             
             <div style="display: flex; gap: 10px;">
@@ -162,7 +168,6 @@
         </div>
     </div>
 
-    <!-- 보기 모드 전환 및 전체 정답 컨트롤 영역 -->
     <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 30px; border-bottom: 2px solid #dee2e6; padding-bottom: 10px;">
         <div class="tab-menu">
             <button class="tab-btn active" onclick="switchView('table', this)">📋 표로 보기 (추천)</button>
@@ -198,20 +203,22 @@
         <div class="card-grid" id="problemCardGrid"></div>
     </div>
 
-    <!-- 3. 랜덤 퀴즈 뷰 (새로 추가) -->
+    <!-- 3. 랜덤 퀴즈 뷰 -->
     <div id="randomViewSection" class="view-section">
         <div class="random-container">
             <button class="btn-random" onclick="drawRandomProblem()">🎲 무작위 문제 하나 뽑기</button>
             <p style="color: #666; font-size: 14px; margin-top: 10px;">(상단의 과목/검색어 필터가 적용된 문제 중에서만 뽑힙니다)</p>
-            
-            <!-- 뽑힌 문제가 표시될 공간 -->
-            <div id="randomProblemBox" class="random-problem-box" style="display: none;">
-                <!-- 내용이 JS를 통해 여기에 주입됩니다 -->
-            </div>
+            <div id="randomProblemBox" class="random-problem-box" style="display: none;"></div>
         </div>
     </div>
 
     <script>
+        // 🌟 마크다운(표) 렌더링 설정 (줄바꿈 허용, 표 기능 활성화)
+        marked.setOptions({
+            breaks: true,
+            gfm: true
+        });
+
         // ⚠️ 주의: 기존 시트 주소가 있다면 여기에 꼭 덮어씌워주세요!
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwHj5KBC8o71sRXmxiBVrwmljIbymlutRcpNTEt-k_3DmnLomvUsCdGB6QBwQLZLsaiQA/exec";
         
@@ -349,7 +356,6 @@
         function switchView(viewMode, element) {
             currentView = viewMode;
             
-            // 모든 탭 스타일 초기화
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active');
                 if(btn.innerText.includes('랜덤')) {
@@ -359,7 +365,6 @@
             });
             document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
             
-            // 선택된 탭 활성화
             element.classList.add('active');
             
             if(viewMode === 'table') {
@@ -368,7 +373,7 @@
                 document.getElementById('cardViewSection').classList.add('active');
             } else if(viewMode === 'random') {
                 document.getElementById('randomViewSection').classList.add('active');
-                element.style.backgroundColor = '#6f42c1'; // 보라색 테마 유지
+                element.style.backgroundColor = '#6f42c1'; 
                 element.style.color = 'white';
             }
             
@@ -484,13 +489,11 @@
             const filtered = getFilteredProblems();
             renderTable(filtered);
             renderCards(filtered);
-            
-            // 필터가 바뀌면 띄워져 있던 랜덤 문제 창은 숨김
             document.getElementById('randomProblemBox').style.display = 'none';
         }
 
         // ==========================================
-        // 1. 표 형태
+        // 🌟 1. 표 형태 렌더링 (마크다운 적용)
         // ==========================================
         function renderTable(filteredData) {
             const tbody = document.getElementById('problemTableBody');
@@ -521,10 +524,10 @@
                 tr.innerHTML = `
                     <td>${p.year}</td>
                     <td><span class="subject-badge">${p.subject}</span></td>
-                    <td class="question-cell">${p.question}</td>
+                    <td class="markdown-body" style="font-weight: 500;">${marked.parse(p.question)}</td>
                     <td>
                         <button class="${btnClass} table-ans-btn" id="tableBtn_${originalIndex}" onclick="toggleTableAnswer(${originalIndex})">${btnText}</button>
-                        <div class="table-answer-content" id="tableAns_${originalIndex}" style="display: ${displayStyle};">${p.answer}</div>
+                        <div class="table-answer-content markdown-body" id="tableAns_${originalIndex}" style="display: ${displayStyle};">${marked.parse(p.answer)}</div>
                     </td>
                     <td>${tagBadges}</td>
                     ${actionCell}
@@ -575,7 +578,7 @@
         }
 
         // ==========================================
-        // 2. 카드 형태
+        // 🌟 2. 카드 형태 렌더링 (마크다운 적용)
         // ==========================================
         function renderCards(filteredData) {
             const grid = document.getElementById('problemCardGrid');
@@ -598,8 +601,8 @@
                             <span class="subject-badge">${p.subject}</span>
                             <span><strong>${p.year}년</strong></span>
                         </div>
-                        <div class="card-question">${p.question}</div>
-                        <div class="card-answer-box" id="cardAns_${originalIndex}">${p.answer}</div>
+                        <div class="card-question markdown-body">${marked.parse(p.question)}</div>
+                        <div class="card-answer-box markdown-body" id="cardAns_${originalIndex}">${marked.parse(p.answer)}</div>
                     </div>
                     <div>
                         <button class="btn-toggle-ans" id="cardBtn_${originalIndex}" onclick="toggleCardAnswer(${originalIndex})">정답 보기</button>
@@ -626,7 +629,7 @@
         }
 
         // ==========================================
-        // 3. 랜덤 퀴즈 형태 (새로 추가)
+        // 🌟 3. 랜덤 퀴즈 형태 렌더링 (마크다운 적용)
         // ==========================================
         function drawRandomProblem() {
             const filteredData = getFilteredProblems();
@@ -635,7 +638,6 @@
                 return;
             }
             
-            // 필터링된 데이터 중 무작위로 하나 추출
             const randomIndex = Math.floor(Math.random() * filteredData.length);
             const p = filteredData[randomIndex];
             
@@ -649,11 +651,11 @@
                             <span class="subject-badge">${p.subject}</span>
                             <span><strong>${p.year !== '미정' ? p.year + '년' : '연도 미정'}</strong></span>
                         </div>
-                        <div class="card-question" style="font-size: 18px;">${p.question}</div>
-                        <div class="card-answer-box" id="randomAnsBox" style="display: none; font-size: 16px;">${p.answer}</div>
+                        <div class="card-question markdown-body" style="font-size: 18px;">${marked.parse(p.question)}</div>
+                        <div class="card-answer-box markdown-body" id="randomAnsBox" style="display: none; font-size: 16px;">${marked.parse(p.answer)}</div>
                     </div>
                     <div style="margin-top: 20px;">
-                        <button class="btn-toggle-ans" id="randomAnsBtn" onclick="toggleRandomAnswer()" style="font-size: 15px; padding: 12px;">정답 보기</button>
+                        <button class="btn-toggle-ans" id="randomAnsBtn" onclick="toggleRandomAnswer()" style="font-size: 15px; padding: 12px; background: #6f42c1;">정답 보기</button>
                         <div class="card-tags">${tagBadges}</div>
                     </div>
                 </div>
