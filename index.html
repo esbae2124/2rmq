@@ -48,9 +48,13 @@
         .view-section.active { display: block; }
 
         .table-responsive { overflow-x: auto; background: #fff; border-radius: 8px; border: 1px solid #dee2e6; }
-        table { width: 100%; border-collapse: collapse; min-width: 900px; table-layout: fixed; }
+        
+        /* 메인 표 속성: 전체 너비 고정 */
+        table.main-table { width: 100%; border-collapse: collapse; min-width: 900px; table-layout: fixed; }
         th { background-color: #f1f3f5; border-bottom: 2px solid #dee2e6; padding: 12px; text-align: left; font-size: 14px; }
-        td { padding: 12px; border-bottom: 1px solid #dee2e6; vertical-align: top; font-size: 14px; word-break: keep-all; }
+        
+        /* 줄바꿈 강제 적용 */
+        td { padding: 12px; border-bottom: 1px solid #dee2e6; vertical-align: top; font-size: 14px; word-break: break-all; white-space: normal; }
         
         .btn-toggle-table { background: #6c757d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; transition: background 0.2s; }
         .btn-toggle-table.opened { background: #28a745; }
@@ -59,12 +63,11 @@
         .badge { background-color: #e2e3e5; color: #383d41; padding: 2px 6px; border-radius: 4px; font-size: 12px; margin-right: 4px; display: inline-block; margin-bottom: 2px; }
         .subject-badge { font-weight: bold; color: #495057; background: #e8f0fe; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
         
-        /* 🌟 수정된 출처 배지 디자인 */
         .source-badge { font-weight: bold; color: #fff; padding: 3px 6px; border-radius: 4px; font-size: 12px; display: inline-block; }
-        .source-미화 { background-color: #e83e8c; } /* 핑크 */
-        .source-니케 { background-color: #20c997; } /* 민트 */
-        .source-시대고시 { background-color: #fd7e14; } /* 주황 */
-        .source-0 { background-color: #6c757d; } /* 직접 추가한 출처나 미지정(회색) */
+        .source-미화 { background-color: #e83e8c; }
+        .source-니케 { background-color: #20c997; }
+        .source-시대고시 { background-color: #fd7e14; }
+        .source-0 { background-color: #6c757d; }
 
         .action-btns { display: flex; gap: 5px; flex-direction: column; }
         .btn-edit { background-color: #ffc107; color: #212529; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
@@ -84,11 +87,11 @@
         .btn-random:hover { background-color: #59339d; transform: translateY(-2px); }
         .random-problem-box { max-width: 700px; margin: 30px auto 0; text-align: left; }
 
-        .markdown-body table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
+        /* 안쪽 마크다운 표 설정: 유연한 크기 조절 및 줄바꿈 적용 */
+        .markdown-body table { width: 100% !important; border-collapse: collapse; margin: 15px 0; font-size: 14px; table-layout: auto; word-break: break-all; white-space: normal; }
         .markdown-body th { background-color: #e9ecef; border: 1px solid #ced4da; padding: 10px; text-align: center; font-weight: bold; color: #495057; }
-        .markdown-body td { border: 1px solid #ced4da; padding: 10px; }
-        .markdown-body p { margin-top: 0; margin-bottom: 8px; }
-        .markdown-body ul, .markdown-body ol { margin-top: 0; margin-bottom: 8px; padding-left: 20px; }
+        .markdown-body td { border: 1px solid #ced4da; padding: 10px; word-break: break-all; white-space: normal; }
+        .markdown-body p { margin-top: 0; margin-bottom: 8px; white-space: pre-wrap; word-break: break-all; }
     </style>
 </head>
 <body>
@@ -144,13 +147,13 @@
             </div>
             
             <div class="form-group" style="margin-bottom: 15px;">
-                <label for="inputQuestion">문제 (표를 넣으려면 | 항목 | 내용 | 처럼 입력,줄바꿈 | --- | 사용)</label>
-                <textarea id="inputQuestion" rows="2" placeholder="문제를 입력하세요"></textarea>
+                <label for="inputQuestion">문제</label>
+                <textarea id="inputQuestion" rows="2" placeholder="문제를 입력하세요.&#10;[표 입력 예시]&#10;| 항목 | 내용 |&#10;|---|---|&#10;| A | B |"></textarea>
             </div>
             
             <div class="form-group" style="margin-bottom: 15px;">
-                <label for="inputAnswer">답안 (표를 넣으려면 | 항목 | 내용 | 처럼 입력,줄바꿈 | --- | 사용)</label>
-                <textarea id="inputAnswer" rows="4" placeholder="답안을 입력하세요"></textarea>
+                <label for="inputAnswer">답안</label>
+                <textarea id="inputAnswer" rows="4" placeholder="답안을 입력하세요.&#10;[표 입력 예시]&#10;| 항목 | 내용 |&#10;|---|---|&#10;| A | B |"></textarea>
             </div>
             
             <div style="display: flex; gap: 10px;">
@@ -183,7 +186,6 @@
                 <label for="filterSource">출처 선택 📚</label>
                 <select id="filterSource" onchange="renderAll()">
                     <option value="전체">✨ 전체 출처 보기</option>
-                    <!-- 자바스크립트를 통해 입력된 출처들이 이곳에 자동 생성됩니다 -->
                 </select>
             </div>
             <div class="form-group" style="grid-column: span 2;">
@@ -207,14 +209,15 @@
     <!-- 1. 표 형태 뷰 -->
     <div id="tableViewSection" class="view-section active">
         <div class="table-responsive">
-            <table>
+            <table class="main-table">
                 <thead>
                     <tr>
-                        <th style="width: 7%;">연도</th>
-                        <th style="width: 10%;">과목</th>
-                        <th style="width: 10%;">출처</th>
-                        <th style="width: 25%;">문제</th>
-                        <th style="width: 40%;">정답 확인</th>
+                        <!-- 정답 칸 50%로 확장 -->
+                        <th style="width: 5%;">연도</th>
+                        <th style="width: 8%;">과목</th>
+                        <th style="width: 8%;">출처</th>
+                        <th style="width: 21%;">문제</th>
+                        <th style="width: 50%;">정답 확인</th>
                         <th style="width: 8%;">태그</th>
                         <th class="admin-only th-action" style="width: 7%; text-align: center;">관리</th>
                     </tr>
@@ -244,7 +247,7 @@
             gfm: true
         });
 
-        // ⚠️ 주의: 기존 시트 주소가 있다면 여기에 꼭 덮어씌워주세요!
+        // ⚠️ 기존 구글 앱스 스크립트 주소 사용 ⚠️
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyllSzowOsbRjOxR8LJ0nx_eTFWObqiX1tKccWyn5GFwiCh5m0BCJ7g82wHyjA2xlJVwQ/exec";
         
         const ADMIN_PASSWORD = "2124"; 
@@ -258,7 +261,6 @@
             updateAllAnswersButtonVisibility();
         });
 
-        // 맞춤형 출처 토글 함수
         function toggleCustomSource(val) {
             const customInput = document.getElementById('inputCustomSource');
             if (val === '추가 +') {
@@ -328,9 +330,7 @@
                 });
         }
 
-        // 연도 및 출처 필터를 동적으로 업데이트 하는 함수
         function updateDynamicFilters() {
-            // 1. 연도 업데이트
             const filterYearSelect = document.getElementById('filterYear');
             filterYearSelect.innerHTML = '<option value="전체">✨ 전체 연도 보기</option>';
             
@@ -340,7 +340,7 @@
             years.forEach(year => {
                 const opt = document.createElement('option');
                 opt.value = year;
-                opt.innerText = `${year}`;
+                opt.innerText = `${year}`; // '년' 글자 제거됨
                 filterYearSelect.appendChild(opt);
             });
             
@@ -351,7 +351,6 @@
                 filterYearSelect.appendChild(opt);
             }
 
-            // 2. 출처 업데이트
             const filterSourceSelect = document.getElementById('filterSource');
             const currentSourceFilter = filterSourceSelect.value;
             filterSourceSelect.innerHTML = '<option value="전체">✨ 전체 출처 보기</option>';
@@ -359,7 +358,6 @@
             const standardSources = ['미화', '니케', '시대고시'];
             const allSources = [...new Set(problems.map(p => p.source || '기타/미지정'))];
             
-            // 기본 출처 먼저 추가
             standardSources.forEach(s => {
                 const opt = document.createElement('option');
                 opt.value = s;
@@ -367,7 +365,6 @@
                 filterSourceSelect.appendChild(opt);
             });
             
-            // 사용자가 추가한 커스텀 출처들 추가
             const otherSources = allSources.filter(s => !standardSources.includes(s) && s !== '기타/미지정');
             otherSources.forEach(s => {
                 const opt = document.createElement('option');
@@ -376,7 +373,6 @@
                 filterSourceSelect.appendChild(opt);
             });
 
-            // 기타/미지정 추가
             if (allSources.includes('기타/미지정') || otherSources.length === 0) {
                  const opt = document.createElement('option');
                  opt.value = '기타/미지정';
@@ -384,7 +380,6 @@
                  filterSourceSelect.appendChild(opt);
             }
             
-            // 기존 선택값이 유지되도록 복구
             if(filterSourceSelect.querySelector(`option[value="${currentSourceFilter}"]`)) {
                 filterSourceSelect.value = currentSourceFilter;
             }
@@ -492,7 +487,6 @@
             const year = document.getElementById('inputYear').value.trim() || '미정';
             const subject = document.getElementById('inputSubject').value;
             
-            // 출처 처리 ('추가 +' 선택 시 직접 입력한 값 사용)
             let source = document.getElementById('inputSource').value;
             if (source === '추가 +') {
                 source = document.getElementById('inputCustomSource').value.trim() || '기타/미지정';
@@ -530,7 +524,6 @@
             document.getElementById('inputYear').value = p.year === '미정' ? '' : p.year;
             document.getElementById('inputSubject').value = p.subject;
             
-            // 출처 처리
             const standardSources = ['미화', '니케', '시대고시', '기타/미지정'];
             const inputSourceEl = document.getElementById('inputSource');
             const customSourceEl = document.getElementById('inputCustomSource');
@@ -612,9 +605,6 @@
             return `<span class="${badgeClass}">${s}</span>`;
         }
 
-        // ==========================================
-        // 표 형태 렌더링
-        // ==========================================
         function renderTable(filteredData) {
             const tbody = document.getElementById('problemTableBody');
             tbody.innerHTML = '';
@@ -699,9 +689,6 @@
             }
         }
 
-        // ==========================================
-        // 카드 형태 렌더링
-        // ==========================================
         function renderCards(filteredData) {
             const grid = document.getElementById('problemCardGrid');
             grid.innerHTML = '';
@@ -722,7 +709,7 @@
                     <div>
                         <div class="card-meta">
                             <span class="subject-badge">${p.subject}</span>
-                            <span><strong>${p.year}년</strong></span>
+                            <span><strong>${p.year !== '미정' ? p.year : '미정'}</strong></span>
                             ${sourceBadge}
                         </div>
                         <div class="card-question markdown-body">${marked.parse(p.question)}</div>
@@ -752,9 +739,6 @@
             }
         }
 
-        // ==========================================
-        // 랜덤 퀴즈 형태 렌더링
-        // ==========================================
         function drawRandomProblem() {
             const filteredData = getFilteredProblems();
             if (filteredData.length === 0) {
@@ -774,7 +758,7 @@
                     <div>
                         <div class="card-meta">
                             <span class="subject-badge">${p.subject}</span>
-                            <span><strong>${p.year !== '미정' ? p.year + '년' : '연도 미정'}</strong></span>
+                            <span><strong>${p.year !== '미정' ? p.year : '미정'}</strong></span>
                             ${sourceBadge}
                         </div>
                         <div class="card-question markdown-body" style="font-size: 18px;">${marked.parse(p.question)}</div>
