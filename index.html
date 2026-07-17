@@ -229,15 +229,10 @@
     </div>
 
     <!-- 🌟 4. 개인 메모 뷰 -->
-<div id="memoViewSection" class="view-section">
-    <!-- 💡 모두 열기/닫기 버튼 추가 -->
-    <div style="margin-bottom: 15px; display: flex; gap: 8px;">
-        <button class="btn-hd" onclick="toggleAllMemo(true)">📂 모두 열기</button>
-        <button class="btn-hd" onclick="toggleAllMemo(false)">📁 모두 닫기</button>
+    <div id="memoViewSection" class="view-section">
+        <div style="margin-bottom: 15px; font-size: 14px; color: #666;">💡 클릭하면 상세 내용과 표가 확장됩니다. 방대한 자료 정리에 활용하세요.</div>
+        <div id="memoListContainer"></div>
     </div>
-    
-    <div id="memoListContainer"></div>
-</div>
 
     <script>
         marked.setOptions({ breaks: true, gfm: true });
@@ -398,15 +393,6 @@
             if(content.style.display === 'block') { content.style.display = 'none'; } 
             else { content.style.display = 'block'; }
         }
-
-// 💡 여기에 붙여넣으세요!
-function toggleAllMemo(shouldOpen) {
-    const contents = document.querySelectorAll('.memo-content');
-    contents.forEach(el => {
-        el.style.display = shouldOpen ? 'block' : 'none';
-    });
-}
-
 
         function saveMemo() {
             if(!isAdmin) return;
